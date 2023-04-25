@@ -1,30 +1,26 @@
 public class Main {
     public static void main(String[] args) {
-        Counter counter = new Counter();
+        ATM atm = new ATM(1000);
         Thread thread1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for(int i = 0; i < 10000; i++) {
-                    counter.inc();
-                }
+                atm.withdraw("Max", 300);
             }
         });
         Thread thread2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for(int i = 0; i < 10000; i++) {
-                    counter.dec();
-                }
+                atm.withdraw("John", 500);
+            }
+        });
+        Thread thread3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                atm.withdraw("Nick", 400);
             }
         });
         thread1.start();
         thread2.start();
-        try {
-            thread1.join();
-            thread2.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(counter.getValue());
+        thread3.start();
     }
 }
