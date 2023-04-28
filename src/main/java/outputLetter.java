@@ -1,30 +1,48 @@
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class outputLetter {
     public static void main(String[] args) {
-        Thread threadA = new Thread(new Runnable() {
+        BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>();
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                for(int i = 0; i < 5; i++) {
-                    System.out.println("A");
+                while (true) {
+                    Runnable task = null;
+                    try {
+                        task = blockingQueue.take();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    new Thread(task).start();
                 }
             }
-        });
-        Thread threadB = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i < 5; i++) {
-                    System.out.println("B");
-                }
+        }).start();
+
+        for(int i = 0; i < 5; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        });
-        Thread threadC = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i < 5; i++) {
-                    System.out.println("C");
+            blockingQueue.add(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.print("A");
                 }
-            }
-        });
+            });
+            blockingQueue.add(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.print("B");
+                }
+            });
+            blockingQueue.add(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.print("C");
+                }
+            });
+        }
     }
 }
